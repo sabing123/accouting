@@ -1,0 +1,14 @@
+-r base.txt
+
+# Testing
+pytest==8.4.0
+pytest-django==4.11.0
+pytest-cov==6.2.0
+pytest-mock==3.15.0
+pytest-xdist==3.8.0
+factory-boy==3.3.3
+faker==37.4.0
+coverage==7.9.2
+model-bakery==1.20.4
+_responses==0.25.7
+freezegun==1.5.2

@@ -1,0 +1,54 @@
+# Django core
+Django==5.2
+djangorestframework==3.16
+django-filter==25.1
+django-cors-headers==4.7
+
+# Database
+psycopg[binary]==3.2.9
+psycopg-pool==3.2.6
+
+# Redis and Celery
+redis==6.2.0
+celery==5.5.3
+django-celery-beat==2.8.0
+django-celery-results==2.6.0
+
+# Security and Auth
+django-allauth==65.10.0
+django-axes==8.0.0
+django-guardian==3.1.0
+
+# Forms and Templates
+django-crispy-forms==2.4
+crispy-bootstrap5==2025.4
+django-htmx==1.23.0
+
+# API
+drf-spectacular==0.28.0
+django-rest-framework-simplejwt==5.5.0
+
+# Payments
+stripe==12.0.0
+
+# Utils
+python-dotenv==1.1.0
+python-dateutil==2.9.0.post0
+pytz==2025.2
+django-model-utils==5.0.0
+django-extensions==4.1
+django-environ==0.12.0
+django-fsm==2.8.0
+django-money==3.5.4
+django-admin-list-filter-dropdown==1.0.3
+django-import-export==5.0.1
+django-auditlog==3.2.0
+django-jsonform==2.23.0
+whitenoise==6.10.0
+gunicorn==23.0.0
+uvicorn[standard]==0.35.0
+Pillow==11.3.0
+reportlab==4.4.2
+WeasyPrint==65.1
+openpyxl==3.1.5
+celery-progress==0.2.0

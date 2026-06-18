@@ -1,0 +1,6 @@
+-r base.txt
+
+# Production
+sentry-sdk==2.32.0
+django-health-check==3.18.0
+django-allow-cidr==0.8.0

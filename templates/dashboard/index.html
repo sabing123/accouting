@@ -1,0 +1,283 @@
+{% extends 'base/app.html' %}
+
+{% block title %}Dashboard - {{ tenant.name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="h3 mb-4">Dashboard</h1>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-muted mb-1">Cash Balance</h6>
+                        <h3 class="mb-0">${{ overview.cash_balance|floatformat:2 }}</h3>
+                    </div>
+                    <div class="text-primary fs-1">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-muted mb-1">Accounts Receivable</h6>
+                        <h3 class="mb-0">${{ overview.ar_balance|floatformat:2 }}</h3>
+                    </div>
+                    <div class="text-success fs-1">
+                        <i class="bi bi-arrow-down-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-muted mb-1">Accounts Payable</h6>
+                        <h3 class="mb-0">${{ overview.ap_balance|floatformat:2 }}</h3>
+                    </div>
+                    <div class="text-danger fs-1">
+                        <i class="bi bi-arrow-up-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-muted mb-1">Working Capital</h6>
+                        <h3 class="mb-0">${{ overview.working_capital|floatformat:2 }}</h3>
+                    </div>
+                    <div class="text-info fs-1">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alerts -->
+<div class="row mb-4">
+    {% if overview.overdue_receivables > 0 %}
+    <div class="col-md-6">
+        <div class="alert alert-warning d-flex align-items-center">
+            <i class="bi bi-exclamation-triangle fs-4 me-3"></i>
+            <div>
+                <strong>{{ overview.overdue_receivables }} overdue invoice{{ overview.overdue_receivables|pluralize }}</strong>
+                <a href="{% url 'receivables:invoice-list' %}?overdue=true" class="alert-link ms-2">View</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if overview.overdue_payables > 0 %}
+    <div class="col-md-6">
+        <div class="alert alert-danger d-flex align-items-center">
+            <i class="bi bi-exclamation-triangle fs-4 me-3"></i>
+            <div>
+                <strong>{{ overview.overdue_payables }} overdue bill{{ overview.overdue_payables|pluralize }}</strong>
+                <a href="{% url 'payables:bill-list' %}?overdue=true" class="alert-link ms-2">View</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Quick Actions</h5>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{% url 'receivables:invoice-create' %}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i>New Invoice
+                    </a>
+                    <a href="{% url 'payables:bill-create' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-plus-circle me-1"></i>New Bill
+                    </a>
+                    <a href="{% url 'ledger:entry-create' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-journal-plus me-1"></i>Journal Entry
+                    </a>
+                    <a href="{% url 'receivables:receipt-create' %}" class="btn btn-outline-success">
+                        <i class="bi bi-cash-coin me-1"></i>Record Receipt
+                    </a>
+                    <a href="{% url 'payables:payment-create' %}" class="btn btn-outline-success">
+                        <i class="bi bi-credit-card me-1"></i>Record Payment
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Two Column Section -->
+<div class="row">
+    <!-- Left Column -->
+    <div class="col-md-8">
+        <!-- Recent Transactions -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-transparent">
+                <h5 class="mb-0">Recent Transactions</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_transactions %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Number</th>
+                                <th>Description</th>
+                                <th class="text-end">Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for txn in recent_transactions %}
+                            <tr>
+                                <td>{{ txn.date }}</td>
+                                <td>
+                                    <span class="badge bg-{% if txn.type == 'invoice' %}success{% elif txn.type == 'bill' %}danger{% else %}secondary{% endif %}">
+                                        {{ txn.type|title }}
+                                    </span>
+                                </td>
+                                <td><a href="{{ txn.url }}">{{ txn.number }}</a></td>
+                                <td>{{ txn.name|truncatechars:30 }}</td>
+                                <td class="text-end">${{ txn.amount|floatformat:2 }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ txn.status }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">No recent transactions.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Bills Due Soon -->
+        {% if ap_due_soon %}
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Bills Due Soon</h5>
+                <a href="{% url 'payables:bill-list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Due Date</th>
+                                <th>Vendor</th>
+                                <th>Bill #</th>
+                                <th class="text-end">Amount</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for bill in ap_due_soon %}
+                            <tr>
+                                <td>{{ bill.due_date }}</td>
+                                <td>{{ bill.vendor.name }}</td>
+                                <td><a href="{% url 'payables:bill-detail' bill.pk %}">{{ bill.bill_number }}</a></td>
+                                <td class="text-end">${{ bill.balance|floatformat:2 }}</td>
+                                <td>
+                                    <a href="{% url 'payables:payment-create' %}?vendor={{ bill.vendor.pk }}" class="btn btn-sm btn-outline-success">Pay</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Right Column -->
+    <div class="col-md-4">
+        <!-- Monthly Summary -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-transparent">
+                <h5 class="mb-0">This Month</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <small class="text-muted">Revenue</small>
+                    <h4 class="text-success mb-0">${{ overview.monthly_revenue|floatformat:2 }}</h4>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted">Expenses</small>
+                    <h4 class="text-danger mb-0">${{ overview.monthly_expenses|floatformat:2 }}</h4>
+                </div>
+                <hr>
+                <div>
+                    <small class="text-muted">Net Income</small>
+                    <h4 class="{% if overview.monthly_profit > 0 %}text-success{% else %}text-danger{% endif %} mb-0">
+                        ${{ overview.monthly_profit|floatformat:2 }}
+                    </h4>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Customers -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-transparent">
+                <h5 class="mb-0">Top Customers</h5>
+            </div>
+            <div class="card-body">
+                {% for customer in top_customers %}
+                <div class="d-flex justify-content-between mb-2">
+                    <a href="{% url 'receivables:customer-detail' customer.pk %}">{{ customer.name }}</a>
+                    <span class="text-muted">${{ customer.total_revenue|floatformat:2 }}</span>
+                </div>
+                {% empty %}
+                <p class="text-muted mb-0">No data available.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Top Vendors -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent">
+                <h5 class="mb-0">Top Vendors</h5>
+            </div>
+            <div class="card-body">
+                {% for vendor in top_vendors %}
+                <div class="d-flex justify-content-between mb-2">
+                    <a href="{% url 'payables:vendor-detail' vendor.pk %}">{{ vendor.name }}</a>
+                    <span class="text-muted">${{ vendor.total_spend|floatformat:2 }}</span>
+                </div>
+                {% empty %}
+                <p class="text-muted mb-0">No data available.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
